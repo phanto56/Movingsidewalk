@@ -5,6 +5,7 @@ import java.awt.*;
 import java.io.*;
 public class MovingSidewalk
 {
+   //a matrix for the maze
    private static char[][] letters;
 
    public static void main(String[] args) throws Exception
@@ -72,7 +73,7 @@ if(letters[r][c]=='D')
                solved.add(current);
                continue;
            }
-	//checks if imaze point can go up
+	//checks all conditions thant could make the path invalid.
            if(r-1>=0 && letters[r-1][c]!='W' && letters[r-1][c]!='V' && letters[r][c]!='V' && !current.visited.contains(new Point(c,r-1)))
            {
                //System.out.println("\tup");
@@ -83,18 +84,18 @@ if(letters[r][c]=='^')
 	       //increase steps by one
                    possibleSolutions.add(new Solution(current.visited,current.stepsTaken+1,new Point(c,r-1)));
            }
-	//Checks if the pointer hit a wall, and if its moving down
+	//checks all conditions thant could make the path invalid.
            if(r+1<letters.length && letters[r+1][c]!='W' && letters[r+1][c]!='^' && letters[r][c]!='^' && !current.visited.contains(new Point(c,r+1)))
            {
                //System.out.println("\tdown");
-           //Checks if the pointer hit a wall, and if its moving down    
+           //Checks if the sidewalk is moving down    
 if(letters[r][c]=='V')
                    possibleSolutions.add(new Solution(current.visited,current.stepsTaken,new Point(c,r+1)));
                else
 		//adds one step if in different direction
                    possibleSolutions.add(new Solution(current.visited,current.stepsTaken+1,new Point(c,r+1)));
            }
-//Checks if the pointer hit a wall, and if its moving left
+//checks all conditions thant could make the path invalid.
            if(c-1>=0 && letters[r][c-1]!='W' && letters[r][c-1]!='>' && letters[r][c]!='>' && !current.visited.contains(new Point(c-1,r)))
            {
                //System.out.println("\tleft");
@@ -105,15 +106,15 @@ if(letters[r][c]=='<')
 		//add 1 to step if in diff direction
                    possibleSolutions.add(new Solution(current.visited,current.stepsTaken+1,new Point(c-1,r)));
            }
-	//checks if it hit a wall, and if moving left
+	//checks all conditions thant could make the path invalid.
            if(c+1<letters[0].length && letters[r][c+1]!='W' && letters[r][c+1]!='<' && letters[r][c]!='<' && !current.visited.contains(new Point(c+1,r)))
            {
               // System.out.println("\tright");
-            //checks if the current sidewalk is right  
+            //checks if the current sidewalk is moving right  
  if(letters[r][c]=='>')
                    possibleSolutions.add(new Solution(current.visited,current.stepsTaken,new Point(c+1,r)));
                else
-		// add ome to steps taken
+		// add plus one, to steps taken
                    possibleSolutions.add(new Solution(current.visited,current.stepsTaken+1,new Point(c+1,r)));
            }
        }
@@ -144,7 +145,7 @@ class Solution implements Comparable
        this.stepsTaken = stepsTaken;
        this.at = at;
    }
-//comparing the different solutions for the fastest
+//comparing the different solutions for the fastest pathway
    public int compareTo(Object o)
    {
        Solution s = (Solution)o;
