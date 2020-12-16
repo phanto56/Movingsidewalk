@@ -1,0 +1,153 @@
+package Project;
+//imports 
+import java.util.*;
+import java.awt.*;
+import java.io.*;
+public class MovingSidewalk
+{
+   private static char[][] letters;
+
+   public static void main(String[] args) throws Exception
+   { //scanner to read a file
+       Scanner fromFile = new Scanner(new File("moving_sidewalk.dat"));
+       //check if there is a next line from .dat file
+       while(fromFile.hasNextLine())
+       {
+	
+           String line = fromFile.nextLine();
+           Scanner fromText = new Scanner(line).useDelimiter("/");
+           //takes the next line and splits the two parts by the "/", splitting them into a cols and //rows
+           int numCols = fromText.nextInt();
+           int numRows = fromText.nextInt();
+           //taking the line input and creating a matrix of letters.
+           letters = new char[numRows][numCols];
+
+
+           int startCol=0,startRow=0;
+           //loops through the rows
+           for(int row=0; row<letters.length; row++)
+           {
+               //reads in the row, and stores it in s
+               String s = fromFile.nextLine();
+
+               //fills letters with the file input
+               for(int col=0; col<letters[0].length; col++)
+               {
+                   letters[row][col] = s.charAt(col);
+
+                   //checking where the start of the sidewalk
+                   if(letters[row][col]=='S')
+                   {
+                       startRow=row;
+                       startCol=col;
+                   }
+               }
+           }
+           //calling the fewestMoves method
+           int fewestMoves = fewestMoves(startCol,startRow);
+           //Checks if the fewest moves isn't -1, if there is a solution
+           if(fewestMoves==-1)
+               System.out.println("Not solvable.");
+           else
+               System.out.printf("The fastest solution is %d step(s).\n",fewestMoves);
+       }
+   }
+   public static int fewestMoves(int col,int row)
+   {
+       //Class the solution class
+       Solution solution = new Solution(new Point(col,row));
+       //A arraylist of solution objects
+       ArrayList<Solution> possibleSolutions = new ArrayList<>();
+       possibleSolutions.add(solution);
+       ArrayList<Solution> solved = new ArrayList<>();
+       while(possibleSolutions.size()>0)
+       {
+           Solution current = possibleSolutions.remove(0);
+           int r = current.at.y;
+           int c = current.at.x;
+           //System.out.println("c"+c+"r"+r);
+           //Checks if at the end of maze
+if(letters[r][c]=='D')
+           {
+               solved.add(current);
+               continue;
+           }
+	//checks if imaze point can go up
+           if(r-1>=0 && letters[r-1][c]!='W' && letters[r-1][c]!='V' && letters[r][c]!='V' && !current.visited.contains(new Point(c,r-1)))
+           {
+               //System.out.println("\tup");
+            //checks if the sidewalk is moving up   
+if(letters[r][c]=='^')
+                   possibleSolutions.add(new Solution(current.visited,current.stepsTaken,new Point(c,r-1)));
+               else
+	       //increase steps by one
+                   possibleSolutions.add(new Solution(current.visited,current.stepsTaken+1,new Point(c,r-1)));
+           }
+	//Checks if the pointer hit a wall, and if its moving down
+           if(r+1<letters.length && letters[r+1][c]!='W' && letters[r+1][c]!='^' && letters[r][c]!='^' && !current.visited.contains(new Point(c,r+1)))
+           {
+               //System.out.println("\tdown");
+           //Checks if the pointer hit a wall, and if its moving down    
+if(letters[r][c]=='V')
+                   possibleSolutions.add(new Solution(current.visited,current.stepsTaken,new Point(c,r+1)));
+               else
+		//adds one step if in different direction
+                   possibleSolutions.add(new Solution(current.visited,current.stepsTaken+1,new Point(c,r+1)));
+           }
+//Checks if the pointer hit a wall, and if its moving left
+           if(c-1>=0 && letters[r][c-1]!='W' && letters[r][c-1]!='>' && letters[r][c]!='>' && !current.visited.contains(new Point(c-1,r)))
+           {
+               //System.out.println("\tleft");
+            //if the sidewalk is moving left   
+if(letters[r][c]=='<')
+                   possibleSolutions.add(new Solution(current.visited,current.stepsTaken,new Point(c-1,r)));
+               else
+		//add 1 to step if in diff direction
+                   possibleSolutions.add(new Solution(current.visited,current.stepsTaken+1,new Point(c-1,r)));
+           }
+	//checks if it hit a wall, and if moving left
+           if(c+1<letters[0].length && letters[r][c+1]!='W' && letters[r][c+1]!='<' && letters[r][c]!='<' && !current.visited.contains(new Point(c+1,r)))
+           {
+              // System.out.println("\tright");
+            //checks if the current sidewalk is right  
+ if(letters[r][c]=='>')
+                   possibleSolutions.add(new Solution(current.visited,current.stepsTaken,new Point(c+1,r)));
+               else
+		// add ome to steps taken
+                   possibleSolutions.add(new Solution(current.visited,current.stepsTaken+1,new Point(c+1,r)));
+           }
+       }
+       if(solved.size()==0)
+           return -1;
+       else
+       {
+           Collections.sort(solved);
+           return solved.get(0).stepsTaken;
+       }
+   }
+}
+class Solution implements Comparable
+{
+   public ArrayList<Point> visited = new ArrayList<>();
+   public int stepsTaken=0;
+   public Point at;
+
+   public Solution(Point at) {
+       this.at = at;
+       visited.add(at);
+   }
+//adding all the info into visited
+   public Solution(ArrayList<Point> visited, int stepsTaken, Point at) {
+       for(Point p: visited)
+           this.visited.add(p);
+       this.visited.add(at);
+       this.stepsTaken = stepsTaken;
+       this.at = at;
+   }
+//comparing the different solutions for the fastest
+   public int compareTo(Object o)
+   {
+       Solution s = (Solution)o;
+       return stepsTaken-s.stepsTaken;
+   }
+}
